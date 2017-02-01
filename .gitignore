@@ -1,3 +1,5 @@
+cmake/
+
 # Compiled object files
 *.o
 *.opp
