@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdio.h>
-#include "iothub_local/iothub_local.h"
 #include "iothub_local/iothub.h"
 
 int main(int argc, void** argv)

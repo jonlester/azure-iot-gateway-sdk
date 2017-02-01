@@ -11,6 +11,7 @@ set(iothub_local_c_files
 ./src/iothub_auth.c
 ./src/iothub_http.c
 ./src/iothub_device_messaging.c
+./src/iothub_device_registry.c
 ./src/iothub_message.c
 )
 
@@ -19,6 +20,7 @@ set(iothub_local_h_files
 ./inc/iothub_local/iothub_auth.h
 ./inc/iothub_local/iothub_http.h
 ./inc/iothub_local/iothub_device_messaging.h
+./inc/iothub_local/iothub_device_registry.h
 ./inc/iothub_local/iothub_message.h
 )
 

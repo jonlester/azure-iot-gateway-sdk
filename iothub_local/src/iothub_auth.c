@@ -3,78 +3,37 @@
 
 #include <stdlib.h>
 #include "iothub_local/iothub_auth.h"
+#include "iothub_local/iothub_device_registry.h"
 #include "azure_c_shared_utility/xlogging.h"
 
 typedef struct IOTHUB_AUTH_INSTANCE_TAG
 {
-int x;
+    IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry;
 } IOTHUB_AUTH_INSTANCE;
 
-IOTHUB_HANDLE iothub_create(const char* iothub_name)
+IOTHUB_AUTH_HANDLE iothub_auth_create(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry)
 {
-    IOTHUB_INSTANCE* result = (IOTHUB_INSTANCE*)malloc(sizeof(IOTHUB_INSTANCE));
+    IOTHUB_AUTH_INSTANCE* result = (IOTHUB_AUTH_INSTANCE*)malloc(sizeof(IOTHUB_AUTH_INSTANCE));
     if (result == NULL)
     {
-        LogError("Could not allocate memory for iothub instance");
+        LogError("Could not allocate memory for iothub authentication instance");
     }
     else
     {
-        if (mallocAndStrcpy_s(&result->iothub_name, iothub_name) != 0)
-        {
-            LogError("Cannot allocate memory for the IoTHub name");
-            free(result);
-            result = NULL;
-        }
+        result->iothub_device_registry = iothub_device_registry;
     }
 
-    return (IOTHUB_HANDLE)result;
+    return (IOTHUB_AUTH_HANDLE)result;
 }
 
-void iothub_destroy(IOTHUB_HANDLE iothub)
+void iothub_auth_destroy(IOTHUB_AUTH_HANDLE iothub_auth)
 {
-    if (iothub == NULL)
+    if (iothub_auth == NULL)
     {
-        LogError("NULL IoTHub handle");
+        LogError("NULL IoTHub auth handle");
     }
     else
     {
-        free(iothub->iothub_name);
-        free(iothub);
+        free(iothub_auth);
     }
-}
-
-int iothub_start(IOTHUB_HANDLE iothub)
-{
-    int result;
-
-    if (iothub == NULL)
-    {
-        LogError("NULL IoTHub handle");
-        result = __LINE__;
-    }
-    else
-    {
-        LogInfo("Starting IoTHub %s ...", iothub->iothub_name);
-        result = 0;
-    }
-
-    return result;
-}
-
-int iothub_stop(IOTHUB_HANDLE iothub)
-{
-    int result;
-
-    if (iothub == NULL)
-    {
-        LogError("NULL IoTHub handle");
-        result = __LINE__;
-    }
-    else
-    {
-        LogInfo("Stopping IoTHub %s ...", iothub->iothub_name);
-        result = 0;
-    }
-
-    return result;
 }
