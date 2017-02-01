@@ -20,19 +20,62 @@ IOTHUB_HANDLE iothub_create(const char* iothub_name)
     }
     else
     {
-        if (malloc)
-        result->iothub_name = (char*)mallocAndS
+        if (mallocAndStrcpy_s(&result->iothub_name, iothub_name) != 0)
+        {
+            LogError("Cannot allocate memory for the IoTHub name");
+            free(result);
+            result = NULL;
+        }
+    }
+
+    return (IOTHUB_HANDLE)result;
+}
+
+void iothub_destroy(IOTHUB_HANDLE iothub)
+{
+    if (iothub == NULL)
+    {
+        LogError("NULL IoTHub handle");
+    }
+    else
+    {
+        free(iothub->iothub_name);
+        free(iothub);
+    }
+}
+
+int iothub_start(IOTHUB_HANDLE iothub)
+{
+    int result;
+
+    if (iothub == NULL)
+    {
+        LogError("NULL IoTHub handle");
+        result = __LINE__;
+    }
+    else
+    {
+        LogInfo("Starting IoTHub %s ...", iothub->iothub_name);
+        result = 0;
     }
 
     return result;
 }
 
-void iothub_destroy(IOTHUB_HANDLE iothub)
+int iothub_stop(IOTHUB_HANDLE iothub)
 {
+    int result;
 
-}
+    if (iothub == NULL)
+    {
+        LogError("NULL IoTHub handle");
+        result = __LINE__;
+    }
+    else
+    {
+        LogInfo("Stopping IoTHub %s ...", iothub->iothub_name);
+        result = 0;
+    }
 
-int iothub_start(IOTHUB_HANDLE iothub)
-{
-    return 0;
+    return result;
 }

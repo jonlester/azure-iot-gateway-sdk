@@ -8,15 +8,22 @@ compileAsC99()
 set(iothub_local_c_files
 ./src/iothub_local.c
 ./src/iothub.c
+./src/iothub_device_messaging.c
 )
 
 set(iothub_local_h_files
 ./inc/iothub_local/iothub_local.h
 ./inc/iothub_local/iothub.h
+./inc/iothub_local/iothub_device_messaging.h
 )
 
 include_directories(./inc)
+include_directories(../deps/c-utility/inc)
 
 add_executable(iothub_local
     ${iothub_local_c_files} 
     ${iothub_local_h_files})
+
+linkSharedUtil(iothub_local)
+
+copy_gateway_dll(iothub_local ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration))
