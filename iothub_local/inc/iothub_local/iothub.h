@@ -10,8 +10,10 @@ extern "C" {
 
 typedef struct IOTHUB_INSTANCE_TAG* IOTHUB_HANDLE;
 
+#include "iothub_local/iothub_device_messaging.h"
+
 extern IOTHUB_HANDLE iothub_create(const char* iothub_name);
-extern int iothub_start(IOTHUB_HANDLE iothub);
+extern IOTHUB_DEVICE_MESSAGING_HANDLE iothub_get_device_messaging_interface(IOTHUB_HANDLE iothub, const char* device_id, const char* sas_token);
 extern int iothub_stop(IOTHUB_HANDLE iothub);
 extern void iothub_destroy(IOTHUB_HANDLE iothub);
 

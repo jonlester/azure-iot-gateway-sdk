@@ -14,6 +14,7 @@ typedef struct IOTHUB_AUTH_INSTANCE_TAG
 IOTHUB_AUTH_HANDLE iothub_auth_create(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry)
 {
     IOTHUB_AUTH_INSTANCE* result = (IOTHUB_AUTH_INSTANCE*)malloc(sizeof(IOTHUB_AUTH_INSTANCE));
+
     if (result == NULL)
     {
         LogError("Could not allocate memory for iothub authentication instance");
@@ -36,4 +37,27 @@ void iothub_auth_destroy(IOTHUB_AUTH_HANDLE iothub_auth)
     {
         free(iothub_auth);
     }
+}
+
+bool iothub_auth_authenticate_device(IOTHUB_AUTH_HANDLE iothub_auth, const char* device_id, const char* sas_token)
+{
+    bool result;
+
+    if (iothub_auth == NULL)
+    {
+        LogError("NULL IoTHub auth handle");
+        result = false;
+    }
+    else
+    {
+        DEVICE_DATA device_data;
+
+        result = iothub_device_registry_find_device_by_id(iothub_auth->iothub_device_registry, device_id, &device_data);
+        if (result == false)
+        {
+            LogError("Could not find the device");
+        }
+    }
+
+    return result;
 }

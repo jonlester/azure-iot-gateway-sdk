@@ -3,12 +3,13 @@
 
 #include <stdio.h>
 #include "iothub_local/iothub.h"
+#include "iothub_local/iothub_http.h"
 
 int main(int argc, void** argv)
 {
     int result;
-    IOTHUB_HANDLE iothub = iothub_create("dcristoiothub");
 
+    IOTHUB_HANDLE iothub = iothub_create("dcristoiothub");
     if (iothub == NULL)
     {
         (void)printf("Could not create IoTHub instance");
@@ -16,20 +17,30 @@ int main(int argc, void** argv)
     }
     else
     {
-        if (iothub_start(iothub) != 0)
+        IOTHUB_HTTP_HANDLE iothub_http = iothub_http_create(iothub, 80);
+        if (iothub_http == NULL)
         {
-            (void)printf("Could not start IoTHub");
+            (void)printf("Could not create IoTHub HTTP instance");
             result = __LINE__;
         }
         else
         {
-            getchar();
+            if (iothub_http_start(iothub_http) != 0)
+            {
+                (void)printf("Could not start IoTHub");
+                result = __LINE__;
+            }
+            else
+            {
+                getchar();
 
-            (void)iothub_stop(iothub);
+                (void)iothub_http_stop(iothub_http);
 
-            iothub_destroy(iothub);
-            result = 0;
+                result = 0;
+            }
         }
+
+        iothub_destroy(iothub);
     }
 
     (void)argc;

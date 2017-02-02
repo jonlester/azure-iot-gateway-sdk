@@ -20,7 +20,7 @@ typedef enum IOTHUB_DEVICE_MESSAGING_SEND_MESSAGE_RESULT_TAG
 
 typedef void(*IOTHUB_DEVICE_MESSAGING_SEND_MESSAGE_CALLBACK)(void* context, IOTHUB_DEVICE_MESSAGING_SEND_MESSAGE_RESULT send_message_result, const char* error_string);
 
-extern IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging_create(void);
+extern IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging_create(const char* device_id);
 extern void iothub_device_messaging_destroy(IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging);
 extern int iothub_device_messaging_send_message_async(IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging, IOTHUB_MESSAGE_HANDLE iothub_message, IOTHUB_DEVICE_MESSAGING_SEND_MESSAGE_CALLBACK send_message_callback, void* send_message_callback_context);
 

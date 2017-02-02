@@ -13,7 +13,6 @@ typedef struct DEVICE_INSTANCE_TAG
     char* device_id;
     char* primary_key;
     char* secondary_key;
-    bool is_connected;
 } DEVICE_INSTANCE;
 
 typedef struct IOTHUB_DEVICE_REGISTRY_INSTANCE_TAG
@@ -29,6 +28,16 @@ IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry_create(void)
     {
         LogError("Could not allocate memory for iothub device registry instance");
     }
+    else
+    {
+        result->device_list = singlylinkedlist_create();
+        if (result->device_list == NULL)
+        {
+            LogError("Could not create device list");
+            free(result);
+            result = NULL;
+        }
+    }
 
     return (IOTHUB_DEVICE_REGISTRY_HANDLE)result;
 }
@@ -41,6 +50,7 @@ void iothub_device_registry_destroy(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_
     }
     else
     {
+        singlylinkedlist_destroy(iothub_device_registry->device_list);
         free(iothub_device_registry);
     }
 }
@@ -54,8 +64,8 @@ int iothub_device_registry_add_device(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_devic
         (primary_key == NULL) ||
         (secondary_key == NULL))
     {
-        LogError("Bad arguments: device_id = %p, primary_key = %p, secondary_key = %p",
-            device_id, primary_key, secondary_key);
+        LogError("Bad arguments: iothub_device_registry = %p, device_id = %p, primary_key = %p, secondary_key = %p",
+            iothub_device_registry, device_id, primary_key, secondary_key);
         result = __LINE__;
     }
     else
@@ -108,20 +118,54 @@ int iothub_device_registry_add_device(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_devic
     return result;
 }
 
-int iothub_device_registry_find_device_by_id(const char* device_id, DEVICE_DATA* device_data)
+static bool find_device_by_id(LIST_ITEM_HANDLE list_item, const void* match_context)
+{
+    bool result;
+    DEVICE_INSTANCE* device = (DEVICE_INSTANCE*)singlylinkedlist_item_get_value(list_item);
+    const char* device_id = (const char*)match_context;
+
+    if (strcmp(device->device_id, device_id) == 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return result;
+}
+
+int iothub_device_registry_find_device_by_id(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry, const char* device_id, DEVICE_DATA* device_data)
 {
     int result;
 
-    if ((device_id == NULL) ||
+    if ((iothub_device_registry == NULL) ||
+        (device_id == NULL) ||
         (device_data == NULL))
     {
-        LogError("Bad arguments: device_id = %p, device_data = %p",
-            device_id, device_data);
+        LogError("Bad arguments: iothub_device_registry = %p, device_id = %p, device_data = %p",
+            iothub_device_registry, device_id, device_data);
         result = __LINE__;
     }
     else
     {
-        result = 0;
+        LIST_ITEM_HANDLE search_result = singlylinkedlist_find(iothub_device_registry->device_list, find_device_by_id, device_id);
+        if (search_result == NULL)
+        {
+            LogError("Cannot find device %s",
+                device_id);
+            result = __LINE__;
+        }
+        else
+        {
+            DEVICE_INSTANCE* device = (DEVICE_INSTANCE*)singlylinkedlist_item_get_value(search_result);
+            device_data->device_id = device->device_id;
+            device_data->primary_key = device->primary_key;
+            device_data->secondary_key = device->secondary_key;
+
+            result = 0;
+        }
     }
 
     return result;

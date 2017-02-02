@@ -10,9 +10,12 @@ typedef struct IOTHUB_DEVICE_MESSAGING_INSTANCE_TAG
     int dummy;
 } IOTHUB_DEVICE_MESSAGING_INSTANCE;
 
-IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging_create(void)
+IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging_create(const char* device_id)
 {
     IOTHUB_DEVICE_MESSAGING_HANDLE result = (IOTHUB_DEVICE_MESSAGING_HANDLE)malloc(sizeof(IOTHUB_DEVICE_MESSAGING_INSTANCE));
+
+    (void)device_id;
+
     if (result == NULL)
     {
         LogError("Could not initialize device messaging interface");

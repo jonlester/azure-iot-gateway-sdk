@@ -3,11 +3,13 @@
 
 #include <stdlib.h>
 #include "iothub_local/iothub.h"
+#include "iothub_local/iothub_auth.h"
 #include "azure_c_shared_utility/xlogging.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
 
 typedef struct IOTHUB_INSTANCE_TAG
 {
+    IOTHUB_AUTH_HANDLE iothub_auth;
     char* iothub_name;
 } IOTHUB_INSTANCE;
 
@@ -44,37 +46,31 @@ void iothub_destroy(IOTHUB_HANDLE iothub)
     }
 }
 
-int iothub_start(IOTHUB_HANDLE iothub)
+IOTHUB_DEVICE_MESSAGING_HANDLE iothub_get_device_messaging_interface(IOTHUB_HANDLE iothub, const char* device_id, const char* sas_token)
 {
-    int result;
+    IOTHUB_DEVICE_MESSAGING_HANDLE result;
 
     if (iothub == NULL)
     {
         LogError("NULL IoTHub handle");
-        result = __LINE__;
+        result = NULL;
     }
     else
     {
-        LogInfo("Starting IoTHub %s ...", iothub->iothub_name);
-        result = 0;
-    }
-
-    return result;
-}
-
-int iothub_stop(IOTHUB_HANDLE iothub)
-{
-    int result;
-
-    if (iothub == NULL)
-    {
-        LogError("NULL IoTHub handle");
-        result = __LINE__;
-    }
-    else
-    {
-        LogInfo("Stopping IoTHub %s ...", iothub->iothub_name);
-        result = 0;
+        if (iothub_auth_authenticate_device(iothub->iothub_auth, device_id, sas_token))
+        {
+            LogError("Could not authenticate device %s", device_id);
+            result = NULL;
+        }
+        else
+        {
+            result = iothub_device_messaging_create(device_id);
+            if (result == NULL)
+            {
+                LogError("Could not get device messaging interface for device %s", device_id);
+                result = NULL;
+            }
+        }
     }
 
     return result;

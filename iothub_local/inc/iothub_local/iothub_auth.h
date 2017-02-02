@@ -16,8 +16,8 @@ extern "C" {
 typedef struct IOTHUB_AUTH_INSTANCE_TAG* IOTHUB_AUTH_HANDLE;
 
 extern IOTHUB_AUTH_HANDLE iothub_auth_create(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry);
-extern bool iothub_auth_authenticate(IOTHUB_AUTH_HANDLE iothub_auth, const char* device_id, const char* key);
-extern void iothub_destroy(IOTHUB_AUTH_HANDLE iothub_auth);
+extern bool iothub_auth_authenticate_device(IOTHUB_AUTH_HANDLE iothub_auth, const char* device_id, const char* key);
+extern void iothub_auth_destroy(IOTHUB_AUTH_HANDLE iothub_auth);
 
 #ifdef __cplusplus
 }
