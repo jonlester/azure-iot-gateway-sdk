@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#ifndef IOTHUB_HTTP_H
-#define IOTHUB_HTTP_H
+#ifndef IOTHUB_DEVICE_REGISTRY_H
+#define IOTHUB_DEVICE_REGISTRY_H
 
 #include "iothub_local/iothub_device_registry.h"
 
@@ -31,4 +31,4 @@ extern int iothub_device_registry_process_change(IOTHUB_DEVICE_REGISTRY_HANDLE i
 }
 #endif
 
-#endif /* IOTHUB_HTTP_H */
+#endif /* IOTHUB_DEVICE_REGISTRY_H */

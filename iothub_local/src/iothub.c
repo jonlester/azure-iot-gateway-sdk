@@ -13,7 +13,7 @@ typedef struct IOTHUB_INSTANCE_TAG
     char* iothub_name;
 } IOTHUB_INSTANCE;
 
-IOTHUB_HANDLE iothub_create(const char* iothub_name)
+IOTHUB_HANDLE iothub_create(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_device_registry, const char* iothub_name)
 {
     IOTHUB_INSTANCE* result = (IOTHUB_INSTANCE*)malloc(sizeof(IOTHUB_INSTANCE));
     if (result == NULL)
@@ -28,6 +28,17 @@ IOTHUB_HANDLE iothub_create(const char* iothub_name)
             free(result);
             result = NULL;
         }
+        else
+        {
+            result->iothub_auth = iothub_auth_create(iothub_device_registry);
+            if (result->iothub_auth == NULL)
+            {
+                LogError("Could not create iothub auth");
+                free(result->iothub_name);
+                free(result);
+                result = NULL;
+            }
+        }
     }
 
     return (IOTHUB_HANDLE)result;
@@ -41,6 +52,7 @@ void iothub_destroy(IOTHUB_HANDLE iothub)
     }
     else
     {
+        iothub_auth_destroy(iothub->iothub_auth);
         free(iothub->iothub_name);
         free(iothub);
     }

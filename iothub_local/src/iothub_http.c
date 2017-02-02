@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #include <stdlib.h>
+#include <string.h>
 #include "iothub_local/iothub_http.h"
 #include "iothub_local/iothub.h"
 #include "azure_c_shared_utility/xlogging.h"
@@ -10,8 +11,11 @@
 
 typedef struct IOTHUB_HTTP_INSTANCE_TAG
 {
+    IOTHUB_HANDLE iothub;
     SOCKET_LISTENER_HANDLE socket_listener;
     XIO_HANDLE socket_io;
+    unsigned char* received_bytes;
+    size_t received_bytes_count;
 } IOTHUB_HTTP_INSTANCE;
 
 IOTHUB_HTTP_HANDLE iothub_http_create(IOTHUB_HANDLE iothub, int port)
@@ -23,6 +27,10 @@ IOTHUB_HTTP_HANDLE iothub_http_create(IOTHUB_HANDLE iothub, int port)
     }
     else
     {
+        result->received_bytes = NULL;
+        result->received_bytes_count = 0;
+        result->iothub = iothub;
+        result->socket_io = NULL;
         result->socket_listener = socketlistener_create(port);
         if (result->socket_listener == NULL)
         {
@@ -43,8 +51,94 @@ void iothub_http_destroy(IOTHUB_HTTP_HANDLE iothub_http)
     }
     else
     {
+        if (iothub_http->socket_io != NULL)
+        {
+            xio_destroy(iothub_http->socket_io);
+        }
         socketlistener_destroy(iothub_http->socket_listener);
+        free(iothub_http->received_bytes);
         free(iothub_http);
+    }
+}
+
+static void on_socket_io_open_complete(void* context, IO_OPEN_RESULT open_result)
+{
+}
+
+static void on_socket_io_error(void* context)
+{
+}
+
+static void on_socket_bytes_received(void* context, const unsigned char* buffer, size_t size)
+{
+    IOTHUB_HTTP_HANDLE iothub_http = (IOTHUB_HTTP_HANDLE)context;
+    unsigned char* new_received_bytes = (unsigned char*)realloc(iothub_http->received_bytes, iothub_http->received_bytes_count + size + 1);
+    if (new_received_bytes == NULL)
+    {
+        LogError("Cannot allocate memory for received bytes");
+    }
+    else
+    {
+        const char* end_request;
+
+        iothub_http->received_bytes = new_received_bytes;
+        (void)memcpy(iothub_http->received_bytes + iothub_http->received_bytes_count, buffer, size);
+        iothub_http->received_bytes_count += size;
+
+        iothub_http->received_bytes[iothub_http->received_bytes_count] = '\0';
+
+        end_request = strstr(iothub_http->received_bytes, "\r\n\r\n");
+        if (end_request != NULL)
+        {
+            char device_id[128];
+
+            /* got one request */
+            if (sscanf(iothub_http->received_bytes, "POST /devices/%[^/]messages/events?api-version=2016-11-14 HTTP/1.1",
+                device_id) != 1)
+            {
+                LogError("Error getting device id");
+            }
+            else
+            {
+                IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging = iothub_get_device_messaging_interface(iothub_http->iothub, device_id, "");
+                if (iothub_device_messaging == NULL)
+                {
+                    LogError("Could not obtain device messaging interface for device %s", device_id);
+                }
+                else
+                {
+                    IOTHUB_MESSAGE_HANDLE iothub_message = IoTHubMessage_CreateFromString("");
+                    if (iothub_message == NULL)
+                    {
+                        LogError("Could not create message for device %s", device_id);
+                    }
+                    else
+                    {
+                        if (iothub_device_messaging_send_message_async(iothub_device_messaging, iothub_message, NULL, NULL) != 0)
+                        {
+                            LogError("Could not send message async for device %s", device_id);
+                        }
+                        else
+                        {
+                            LogInfo("D2C message - device_id = %s", device_id);
+                        }
+                    }
+
+                    iothub_device_messaging_destroy(iothub_device_messaging);
+                }
+            }
+        }
+    }
+}
+
+static void on_socket_accepted(void* context, XIO_HANDLE socket_io)
+{
+    IOTHUB_HTTP_HANDLE iothub_http = (IOTHUB_HTTP_HANDLE)context;
+
+    iothub_http->socket_io = socket_io;
+    if (xio_open(iothub_http->socket_io, on_socket_io_open_complete, iothub_http, on_socket_bytes_received, iothub_http, on_socket_io_error, iothub_http) != 0)
+    {
+        LogError("Cannot open accepted socket");
     }
 }
 
@@ -96,4 +190,20 @@ int iothub_http_stop(IOTHUB_HTTP_HANDLE iothub_http)
     }
 
     return result;
+}
+
+void iothub_http_dowork(IOTHUB_HTTP_HANDLE iothub_http)
+{
+    if (iothub_http == NULL)
+    {
+        LogError("NULL IoTHub HTTP handle");
+    }
+    else
+    {
+        socketlistener_dowork(iothub_http->socket_listener);
+        if (iothub_http->socket_io != NULL)
+        {
+            xio_dowork(iothub_http->socket_io);
+        }
+    }
 }

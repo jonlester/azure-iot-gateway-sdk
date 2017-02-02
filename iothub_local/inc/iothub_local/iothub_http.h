@@ -16,6 +16,7 @@ extern IOTHUB_HTTP_HANDLE iothub_http_create(IOTHUB_HANDLE iothub, int port);
 extern int iothub_http_start(IOTHUB_HTTP_HANDLE iothub_http);
 extern int iothub_http_stop(IOTHUB_HTTP_HANDLE iothub_http);
 extern void iothub_http_destroy(IOTHUB_HTTP_HANDLE iothub_http);
+extern void iothub_http_dowork(IOTHUB_HTTP_HANDLE iothub_http);
 
 #ifdef __cplusplus
 }
