@@ -99,7 +99,7 @@ int iothub_device_registry_add_device(IOTHUB_DEVICE_REGISTRY_HANDLE iothub_devic
                 free(device);
                 result = __LINE__;
             }
-            else if (singlylinkedlist_add(iothub_device_registry->device_list, device) != 0)
+            else if (singlylinkedlist_add(iothub_device_registry->device_list, device) == NULL)
             {
                 LogError("Failed adding device to device list");
                 free(device->secondary_key);

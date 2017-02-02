@@ -52,10 +52,14 @@ bool iothub_auth_authenticate_device(IOTHUB_AUTH_HANDLE iothub_auth, const char*
     {
         DEVICE_DATA device_data;
 
-        result = iothub_device_registry_find_device_by_id(iothub_auth->iothub_device_registry, device_id, &device_data);
-        if (result == false)
+        if (iothub_device_registry_find_device_by_id(iothub_auth->iothub_device_registry, device_id, &device_data) != 0)
         {
             LogError("Could not find the device");
+            result = false;
+        }
+        else
+        {
+            result = true;
         }
     }
 

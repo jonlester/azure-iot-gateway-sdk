@@ -27,6 +27,8 @@ int main(int argc, void** argv)
         }
         else
         {
+            (void)iothub_device_registry_add_device(iothub_device_registry, "booohoo", "", "");
+
             IOTHUB_HANDLE iothub = iothub_create(iothub_device_registry, "dcristoiothub");
             if (iothub == NULL)
             {

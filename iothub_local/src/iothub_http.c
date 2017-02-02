@@ -69,6 +69,21 @@ static void on_socket_io_error(void* context)
 {
 }
 
+static void consume_bytes(IOTHUB_HTTP_HANDLE iothub_http, size_t bytes)
+{
+    if (bytes > iothub_http->received_bytes_count)
+    {
+        (void)memmove(iothub_http->received_bytes, iothub_http->received_bytes + bytes, (iothub_http->received_bytes_count - bytes));
+    }
+    else
+    {
+        free(iothub_http->received_bytes);
+        iothub_http->received_bytes = NULL;
+    }
+
+    iothub_http->received_bytes_count -= bytes;
+}
+
 static void on_socket_bytes_received(void* context, const unsigned char* buffer, size_t size)
 {
     IOTHUB_HTTP_HANDLE iothub_http = (IOTHUB_HTTP_HANDLE)context;
@@ -127,6 +142,8 @@ static void on_socket_bytes_received(void* context, const unsigned char* buffer,
                     iothub_device_messaging_destroy(iothub_device_messaging);
                 }
             }
+
+            consume_bytes(iothub_http, end_request + 4 - iothub_http->received_bytes);
         }
     }
 }

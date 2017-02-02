@@ -38,5 +38,5 @@ void iothub_device_messaging_destroy(IOTHUB_DEVICE_MESSAGING_HANDLE iothub_devic
 
 int iothub_device_messaging_send_message_async(IOTHUB_DEVICE_MESSAGING_HANDLE iothub_device_messaging, IOTHUB_MESSAGE_HANDLE iothub_message, IOTHUB_DEVICE_MESSAGING_SEND_MESSAGE_CALLBACK send_message_callback, void* send_message_callback_context)
 {
-
+    return 0;
 }

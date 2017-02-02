@@ -69,7 +69,7 @@ IOTHUB_DEVICE_MESSAGING_HANDLE iothub_get_device_messaging_interface(IOTHUB_HAND
     }
     else
     {
-        if (iothub_auth_authenticate_device(iothub->iothub_auth, device_id, sas_token))
+        if (iothub_auth_authenticate_device(iothub->iothub_auth, device_id, sas_token) == false)
         {
             LogError("Could not authenticate device %s", device_id);
             result = NULL;
