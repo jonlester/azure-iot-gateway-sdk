@@ -25,6 +25,8 @@ int main(int argc, void** argv)
         }
         else
         {
+            (void)printf("Starting HTTP head for IoTHub ...\r\n");
+
             if (iothub_http_start(iothub_http) != 0)
             {
                 (void)printf("Could not start IoTHub");
@@ -33,6 +35,8 @@ int main(int argc, void** argv)
             else
             {
                 getchar();
+
+                (void)printf("Stopping HTTP head for IoTHub ...\r\n");
 
                 (void)iothub_http_stop(iothub_http);
 

@@ -13,6 +13,8 @@ set(iothub_local_c_files
 ./src/iothub_device_messaging.c
 ./src/iothub_device_registry.c
 ./src/iothub_message.c
+../deps/uamqp/src/socket_listener_win32.c
+../deps/uamqp/src/amqpalloc.c
 )
 
 set(iothub_local_h_files
@@ -26,6 +28,7 @@ set(iothub_local_h_files
 
 include_directories(./inc)
 include_directories(../deps/c-utility/inc)
+include_directories(../deps/uamqp/inc)
 
 add_executable(iothub_local
     ${iothub_local_c_files} 
