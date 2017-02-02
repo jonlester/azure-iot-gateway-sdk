@@ -6,10 +6,10 @@
 #include "azure_c_shared_utility/xlogging.h"
 #include "azure_c_shared_utility/crt_abstractions.h"
 
-typedef struct IOTHUB_INSTANCE_TAG
+typedef struct SYNCRONIZER_INSTANCE_TAG
 {
     char* iothub_name;
-} IOTHUB_INSTANCE;
+} SYNCRONIZER_INSTANCE;
 
 SYNCRONIZER_HANDLE syncronizer_create(void)
 {
