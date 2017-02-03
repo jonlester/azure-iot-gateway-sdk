@@ -303,16 +303,16 @@ static void publish_mock_message(const v8::FunctionCallbackInfo<v8::Value>& info
 }
 
 static const char * NOOP_JS_MODULE = "module.exports = { "   \
-"create: function(broker, configuration) { "       \
-"  console.log('create'); "                            \
-"  return true; "                                      \
-"}, "                                                  \
-"receive: function(msg) { "                            \
-"  console.log('receive'); "                           \
-"}, "                                                  \
-"destroy: function() { "                               \
-"  console.log('destroy'); "                           \
-"} "                                                   \
+"create: function(broker, configuration) { "                 \
+"  console.log('create'); "                                  \
+"  return true; "                                            \
+"}, "                                                        \
+"receive: function(msg) { "                                  \
+"  console.log('receive'); "                                 \
+"}, "                                                        \
+"destroy: function() { "                                     \
+"  console.log('destroy'); "                                 \
+"} "                                                         \
 "};";
 
 BEGIN_TEST_SUITE(nodejs_int)
@@ -703,18 +703,9 @@ BEGIN_TEST_SUITE(nodejs_int)
         auto result = NODEJS_Create(g_broker, &config);
 
         ///assert
-        ASSERT_IS_NOT_NULL(result);
-
-        // wait for 15 seconds for the create to get done
-        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
-        ASSERT_IS_TRUE(handle_data->GetModuleState() == NodeModuleState::error);
-        ASSERT_IS_TRUE(handle_data->module_object.IsEmpty() == false);
+        ASSERT_IS_NULL(result);
 
         ///cleanup
-        NODEJS_Destroy(result);
         STRING_delete(config.configuration_json);
         STRING_delete(config.main_path);
     }
@@ -745,18 +736,9 @@ BEGIN_TEST_SUITE(nodejs_int)
         auto result = NODEJS_Create(g_broker, &config);
 
         ///assert
-        ASSERT_IS_NOT_NULL(result);
-
-        // wait for 15 seconds for the create to get done
-        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
-        ASSERT_IS_TRUE(handle_data->GetModuleState() == NodeModuleState::error);
-        ASSERT_IS_TRUE(handle_data->module_object.IsEmpty() == false);
+        ASSERT_IS_NULL(result);
 
         ///cleanup
-        NODEJS_Destroy(result);
         STRING_delete(config.configuration_json);
         STRING_delete(config.main_path);
     }
@@ -788,18 +770,9 @@ BEGIN_TEST_SUITE(nodejs_int)
         auto result = NODEJS_Create(g_broker, &config);
 
         ///assert
-        ASSERT_IS_NOT_NULL(result);
-
-        // wait for 15 seconds for the create to get done
-        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
-        ASSERT_IS_TRUE(handle_data->GetModuleState() == NodeModuleState::error);
-        ASSERT_IS_TRUE(handle_data->module_object.IsEmpty() == false);
+        ASSERT_IS_NULL(result);
 
         ///cleanup
-        NODEJS_Destroy(result);
         STRING_delete(config.configuration_json);
         STRING_delete(config.main_path);
     }
@@ -831,18 +804,9 @@ BEGIN_TEST_SUITE(nodejs_int)
         auto result = NODEJS_Create(g_broker, &config);
 
         ///assert
-        ASSERT_IS_NOT_NULL(result);
-
-        // wait for 15 seconds for the create to get done
-        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
-        ASSERT_IS_TRUE(handle_data->GetModuleState() == NodeModuleState::error);
-        ASSERT_IS_TRUE(handle_data->module_object.IsEmpty() == false);
+        ASSERT_IS_NULL(result);
 
         ///cleanup
-        NODEJS_Destroy(result);
         STRING_delete(config.configuration_json);
         STRING_delete(config.main_path);
     }
@@ -874,17 +838,9 @@ BEGIN_TEST_SUITE(nodejs_int)
         auto result = NODEJS_Create(g_broker, &config);
 
         ///assert
-        ASSERT_IS_NOT_NULL(result);
-
-        // wait for 15 seconds for the create to get done
-        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
-        ASSERT_IS_TRUE(handle_data->GetModuleState() == NodeModuleState::error);
+        ASSERT_IS_NULL(result);
 
         ///cleanup
-        NODEJS_Destroy(result);
         STRING_delete(config.configuration_json);
         STRING_delete(config.main_path);
     }
@@ -1210,11 +1166,7 @@ BEGIN_TEST_SUITE(nodejs_int)
         ///act
         auto result = NODEJS_Create(g_broker, &config);
 
-        // wait for 15 seconds for the create to get done
         NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
 
         NODEJS_Destroy(result);
 
@@ -1270,11 +1222,7 @@ BEGIN_TEST_SUITE(nodejs_int)
 
         NODEJS_Start(result);
 
-        // wait for 15 seconds for the create to get done
         NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
 
         ///assert
         wait_for_predicate(15, [handle_data]() {
@@ -1299,7 +1247,7 @@ BEGIN_TEST_SUITE(nodejs_int)
             "        return true;"                               \
             "    },"                                             \
             "    start: function() {"                            \
-            "        _integrationTest6.notify(true);"            \
+            "        _integrationTest7.notify(true);"            \
             "    },"                                             \
             "    receive: function(message) {"                   \
             "    },"                                             \
@@ -1320,16 +1268,12 @@ BEGIN_TEST_SUITE(nodejs_int)
             auto notify_result_obj = NodeJSUtils::CreateObjectWithMethod(
                 "notify", notify_result
             );
-            NodeJSUtils::AddObjectToGlobalContext("_integrationTest6", notify_result_obj);
+            NodeJSUtils::AddObjectToGlobalContext("_integrationTest7", notify_result_obj);
         });
 
         auto result = NODEJS_Create(g_broker, &config);
 
-        // wait for 15 seconds for the create to get done
         NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
-        wait_for_predicate(15, [handle_data]() {
-            return handle_data->GetModuleState() != NodeModuleState::initializing;
-        });
 
         ///act
 
@@ -1348,4 +1292,77 @@ BEGIN_TEST_SUITE(nodejs_int)
         STRING_delete(config.main_path);
     }
 
-END_TEST_SUITE(nodejs_int)
+    /* Tests_SRS_NODEJS_27_046: [ `NodeJS_Create` shall block until the JS module has become fully initialized. ] */
+    TEST_FUNCTION(NODEJS_Create_is_synchronous)
+    {
+        ///arrange
+        const char* MODULE_START_IS_CALLED = ""                  \
+            "'use strict';"                                      \
+            "module.exports = {"                                 \
+            "    create: function (broker, configuration) {"     \
+            "        var then = Date.now();                "     \
+            "        while ((Date.now() - then) < 3000);   "     \
+            "        return true;"                               \
+            "    },"                                             \
+            "    start: function() {"                            \
+            "    },"                                             \
+            "    receive: function(message) {"                   \
+            "        _integrationTest8.notify(true);"            \
+            "    },"                                             \
+            "    destroy: function () {"                         \
+            "    }"                                              \
+            "};";
+
+        TempFile js_file;
+        js_file.Write(MODULE_START_IS_CALLED);
+
+        NODEJS_MODULE_CONFIG config = {
+            STRING_construct(js_file.js_file_path.c_str()),
+            STRING_construct("{}")
+        };
+
+        // setup a function to be called from the JS test code
+        NodeJSIdle::Get()->AddCallback([]() {
+            auto notify_result_obj = NodeJSUtils::CreateObjectWithMethod(
+                "notify", notify_result
+            );
+            NodeJSUtils::AddObjectToGlobalContext("_integrationTest8", notify_result_obj);
+        });
+
+        MAP_HANDLE message_properties = Map_Create(NULL);
+        ASSERT_IS_NOT_NULL(message_properties);
+        Map_Add(message_properties, "p1", "v1");
+        Map_Add(message_properties, "p2", "v2");
+
+        MESSAGE_CONFIG msg_config;
+        unsigned char buffer[] = { 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
+        msg_config.sourceProperties = message_properties;
+        msg_config.size = sizeof(buffer) / sizeof(unsigned char);
+        msg_config.source = buffer;
+
+        MESSAGE_HANDLE message = Message_Create(&msg_config);
+        ASSERT_IS_NOT_NULL(message);
+
+        auto result = NODEJS_Create(g_broker, &config);
+        NODEJS_MODULE_HANDLE_DATA* handle_data = reinterpret_cast<NODEJS_MODULE_HANDLE_DATA*>(result);
+        ASSERT_IS_NOT_NULL(handle_data);
+
+        ///act
+        NODEJS_Receive(handle_data, message);
+
+        ///assert
+        wait_for_predicate(15, [handle_data]() {
+            return g_notify_result.WasCalled() == true;
+        });
+        ASSERT_IS_TRUE(g_notify_result.WasCalled() == true);
+        ASSERT_IS_TRUE(g_notify_result.GetResult() == true);
+
+        ///cleanup
+        NODEJS_Destroy(result);
+        Message_Destroy(message);
+        Map_Destroy(message_properties);
+        STRING_delete(config.configuration_json);
+        STRING_delete(config.main_path);
+    }
+
+    END_TEST_SUITE(nodejs_int)
