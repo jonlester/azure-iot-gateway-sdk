@@ -1,0 +1,44 @@
+﻿WITH 
+InventoryView as
+(
+  SELECT System.Timestamp AS eventTime,
+  sku,
+  AVG(onhand) as onhand,
+  DATEDIFF (minute, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as minuteWindow,
+  DATEDIFF (second, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as secondWindow
+  FROM inventory
+  GROUP BY TumblingWindow(second, 5), sku 
+),
+QualityView as
+(
+  SELECT System.Timestamp AS eventTime,
+  inventory.sku,
+  AVG(inventory.qualityScore) as qualityScore,
+  MAX(targets.qualityTarget) as qualityTarget,
+  CASE WHEN MAX(inventory.qualityScore) = 0 then 0 else AVG((inventory.qualityScore)/targets.qualityTarget)*100 end as percentOfTarget,
+  DATEDIFF (minute, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as minuteWindow,
+  DATEDIFF (second, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as secondWindow
+  FROM inventory
+  JOIN targets on inventory.sku = targets.sku
+  GROUP BY TumblingWindow(second, 5), inventory.sku 
+),
+SensorView as
+(
+SELECT System.Timestamp AS eventTime,
+  sensor.sku,
+  SUM(sensor.qty) as qtyPerMinute,
+  SUM(case when sensor.qty = 0 then 1 else 0 end) as rejectsPerMinute,
+  MAX(targets.productionTarget)/60.0 as qtyPerMinuteTarget,
+  CASE WHEN MAX(sensor.qty) = 0 then 0.0 else (CAST(SUM (sensor.qty) as float)/(MAX(targets.productionTarget)/60.0))*100.0 end as percentOfTarget,
+  DATEDIFF (minute, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as minuteWindow,
+  DATEDIFF (second, CAST('2017-01-01 00:00:00' AS datetime),System.Timestamp) as secondWindow
+  FROM sensor
+  JOIN targets on sensor.sku = targets.sku
+  GROUP BY HoppingWindow(Duration(minute, 1), Hop(second, 5)), sensor.sku 
+)
+
+SELECT * INTO powerbiinventory FROM InventoryView
+
+SELECT * INTO powerbiquality FROM QualityView
+
+SELECT * INTO powerbiproduction FROM SensorView
