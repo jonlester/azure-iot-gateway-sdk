@@ -1,0 +1,18 @@
+﻿  [
+    {
+      "sku": "assembly1",
+      "qualityTarget": 0.98,
+      "productionTarget":  5000
+    },
+    {
+      "sku": "assembly2",
+      "qualityTarget": 0.95,
+      "productionTarget": 5000
+    },
+    {
+      "sku": "fg1",
+      "qualityTarget": 0.9,
+      "productionTarget": 7000
+    }
+  ]
+

@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\build\samples\dotnet_binding_sample\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -80,6 +80,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{f017a386-0bb3-4f6d-bf28-cf66dade64c4}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Azure.IoT.Gateway\Microsoft.Azure.IoT.Gateway.csproj">
       <Project>{933fe366-17b4-4643-ac9f-fda442731311}</Project>
       <Name>Microsoft.Azure.IoT.Gateway</Name>

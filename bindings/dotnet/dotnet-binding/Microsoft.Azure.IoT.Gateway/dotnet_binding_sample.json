@@ -1,0 +1,86 @@
+{
+  "modules": [
+    {
+      "name": "logger",
+      "loader": {
+        "name": "native",
+        "entrypoint": {
+          "module.path": "..\\..\\..\\modules\\logger\\Debug\\logger.dll"
+        }
+      },
+      "args": {
+        "filename": "log.txt"
+      }
+    },
+    {
+      "name": "dotnet_sensor_module",
+      "loader": {
+        "name": "dotnet",
+        "entrypoint": {
+          "assembly.name": "SensorModule",
+          "entry.type": "SensorModule.DotNetSensorModule"
+        }
+      },
+      "args": ""
+    },
+    {
+      "name": "dotnet_inventory_module",
+      "loader": {
+        "name": "dotnet",
+        "entrypoint": {
+          "assembly.name": "InventoryModule",
+          "entry.type": "InventoryModule.DotNetInventoryModule"
+        }
+      },
+      "args": ""
+    },
+    {
+      "name": "dotnet_printer_module",
+      "loader": {
+        "name": "dotnet",
+        "entrypoint": {
+          "assembly.name": "PrinterModule",
+          "entry.type": "PrinterModule.DotNetPrinterModule"
+        }
+      },
+      "args": ""
+    },
+    {
+      "name": "dotnet_eventhub_module",
+      "loader": {
+        "name": "dotnet",
+        "entrypoint": {
+          "assembly.name": "EventHubModule",
+          "entry.type": "EventHubModule.DotNetEventHubModule"
+        }
+      },
+      "args": {
+        "connectionString": "Endpoint=sb://shopfloor.servicebus.windows.net/;SharedAccessKeyName=Send;SharedAccessKey=fnPq6Ymz/M4YBMAquvgrfxlviapgPJFdVrgWQz73huc=",
+        "sensorEventHubName": "sensor",
+        "inventoryEventHubName": "inventory"
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "dotnet_sensor_module",
+      "sink": "dotnet_printer_module"
+    },
+    {
+      "source": "dotnet_inventory_module",
+      "sink": "dotnet_printer_module"
+    },
+    {
+      "source": "dotnet_sensor_module",
+      "sink": "dotnet_inventory_module"
+    },
+    {
+      "source": "dotnet_inventory_module",
+      "sink": "dotnet_eventhub_module"
+    },
+    {
+      "source": "dotnet_sensor_module",
+      "sink": "dotnet_eventhub_module"
+    }
+  ]
+}

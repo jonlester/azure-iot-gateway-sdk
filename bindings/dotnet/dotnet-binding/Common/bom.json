@@ -1,0 +1,76 @@
+[
+  {
+    "onhand": 1000000,
+    "name": "material1",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 1000000,
+    "name": "material2",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 1000000,
+    "name": "material3",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 1000000,
+    "name": "material4",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 1000000,
+    "name": "material5",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 1000000,
+    "name": "material6",
+    "parts": {
+      
+    }
+  },
+  {
+    "onhand": 100,
+    "name": "assembly1",
+    "productionRatePerHour": 5000,
+    "avgYieldPerHour": 4200,
+    "parts": {
+      "material1": 4,
+      "material2": 1,
+      "material3": 2
+    }
+  },
+  {
+    "onhand": 100,
+    "name": "assembly2",
+    "productionRatePerHour": 4800,
+    "avgYieldPerHour": 4600,
+    "parts": {
+      "material4": 1,
+      "material5": 1,
+      "material6": 2
+    }
+  },
+  {
+    "onhand": 0,
+    "name": "fg1",
+    "productionRatePerHour": 3500,
+    "avgYieldPerHour": 3000,
+    "parts": {
+      "assembly1": 2,
+      "assembly2": 2
+    }
+  }
+]

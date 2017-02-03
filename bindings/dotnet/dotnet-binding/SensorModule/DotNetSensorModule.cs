@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.IoT.Gateway;
 using System.Threading;
+using Common;
 
 namespace SensorModule
 {
@@ -17,17 +18,18 @@ namespace SensorModule
 
         public void Create(Broker broker, byte[] configuration)
         {
-
             this.broker = broker;
             this.configuration = System.Text.Encoding.UTF8.GetString(configuration);
-
         }
 
         public void Start()
         {
-            Thread oThread = new Thread(new ThreadStart(this.threadBody));
-            // Start the thread
-            oThread.Start();
+            foreach (var sku in BOM.Skus.Where(x=> x.parts.Any()))
+            {
+                Thread oThread = new Thread(() => this.threadBody(sku.name));
+                // Start the thread
+                oThread.Start();
+            }
         }
 
         public void Destroy()
@@ -39,23 +41,28 @@ namespace SensorModule
             //Just Ignore the Message. Sensor doesn't need to print.
         }
 
-        public void threadBody()
+        public void threadBody(string sku)
         {
-            Random r = new Random();
-            int n = r.Next();
-
+            Random rand = new Random();
             while (true)
             {
-                Dictionary<string, string> thisIsMyProperty = new Dictionary<string, string>();
-                thisIsMyProperty.Add("source", "sensor");
+                //since this is a simulation, we need to make sure 
+                //the quantity of parts exists to make this sku
+                if (BOM.CanMakeSku(sku))
+                {
+                    var skuData = BOM.Skus.First(x => x.name == sku);
+                    Dictionary<string, string> thisIsMyProperty = new Dictionary<string, string>();
+                    thisIsMyProperty.Add("source", "sensor");
+                    thisIsMyProperty.Add("sku", sku);
+                    int qty = 0;
+                    if(skuData.avgYieldPerHour > 0)
+                        qty = (rand.Next(99) < ((float)(skuData.avgYieldPerHour * 100)) / (float)(skuData.productionRatePerHour)) ? 1 : 0;
+                    Message messageToPublish = new Message(qty.ToString(), thisIsMyProperty);
 
-                Message messageToPublish = new Message("SensorData: " + n, thisIsMyProperty);
+                    this.broker.Publish(messageToPublish);
 
-                this.broker.Publish(messageToPublish);
-
-                //Publish a message every 5 seconds. 
-                Thread.Sleep(5000);
-                n = r.Next();
+                    Thread.Sleep(Convert.ToInt32(3600000f/ (float)(skuData.productionRatePerHour)));
+                }
             }
         }
     }
